@@ -1,17 +1,37 @@
 import { useNavigation } from "@react-navigation/native";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Image, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native";
 import { AdjustmentsIcon, ChevronDownIcon, SearchIcon, UserIcon } from "react-native-heroicons/solid";
 import Categories from "../components/Categories";
 import FeaturedRow from "../components/FeaturedRow";
+import sanityClient from "../sanity";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const [featuredCategory, setFeaturedCategory] = useState("");
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
+  }, []);
+
+  useEffect(() => {
+    sanityClient
+      .fetch(
+        `
+          *[_type == "featured"]{
+            ...,
+            restaurant[]->{
+              ...,
+            dish[]->
+          }
+        }
+      `
+      )
+      .then((data) => {
+        setFeaturedCategory(data);
+      });
   }, []);
 
   return (
@@ -46,18 +66,19 @@ const HomeScreen = () => {
       </View>
 
       {/* Body */}
+      {/* prettier-ignore */}
       <ScrollView className="bg-gray-100 mb-28">
         {/* Categories */}
         <Categories />
 
         {/* Featured */}
-        <FeaturedRow id="123" title="Featured" description="Paid placement for your partners" />
-
-        {/* Tasty Discount */}
-        <FeaturedRow id="1234" title="Tasty Discount" description="Everyone's been enjoining these juicy discounts!" />
-
-        {/* Offers Near You */}
-        <FeaturedRow id="1235" title="Offers near you" description="Why not support your local restaurant tonight?" />
+        {featuredCategory && featuredCategory.map((category, index) => (
+          <FeaturedRow 
+            key={index}
+            id={category._id} 
+            title={category.name} 
+            description={category.short_description} />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );

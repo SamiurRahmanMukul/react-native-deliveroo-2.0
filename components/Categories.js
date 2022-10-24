@@ -10,7 +10,8 @@ const Categories = () => {
         paddingTop: 5,
       }}
       horizontal
-      showsHorizontalScrollIndicator={false}>
+      showsHorizontalScrollIndicator={false}
+    >
       <CategoriesCard imgUrl="https://links.papareact.com/gn7" title="Testing 1" />
       <CategoriesCard imgUrl="https://links.papareact.com/gn7" title="Testing 2" />
       <CategoriesCard imgUrl="https://links.papareact.com/gn7" title="Testing 3" />
